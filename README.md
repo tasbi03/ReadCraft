@@ -60,16 +60,6 @@ python readme_generator.py -a YOUR_API_KEY main.py utils.py -o ./docs
 
 This will generate README files for `main.py` and `utils.py` and save them in the `docs` directory.
 
-## .gitignore
-Make sure to exclude your `.env` and virtual environment (`venv`) from version control by adding the following to `.gitignore`:
-
-```
-# Ignore virtual environment
-venv/
-
-# Ignore environment variables
-.env
-```
 
 ## License
 This project is licensed under the MIT License. See the `LICENSE` file for more information.
