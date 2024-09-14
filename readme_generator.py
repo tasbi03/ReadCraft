@@ -55,7 +55,7 @@ if __name__ == "__main__":
     # Add argument for output directory
     parser.add_argument('--output-dir', '-o', type=str, default='./output', help="Output directory for the generated README files")
 
-    # Add argument for model selection
+    # Add argument for model selection (configurable)
     parser.add_argument('--model', '-m', type=str, default='mixtral-8x7b-32768', help="Specify the AI model to use")
 
     # Parse the command-line arguments
