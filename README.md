@@ -1,7 +1,7 @@
 
-# 🎉 Welcome to the README Generator also known as ReadCraft🎉
+# 🎉 Welcome to the README Generator (ReadCraft) 🎉
 
-This handy tool automatically crafts a  new `README.md` file from your code! 💻✨ All you have to do is point it to a file, and boom – you get a beautifully written README using the awesome Groq API. 🚀
+This handy tool automatically crafts a new `README.md` file from your code! 💻✨ All you have to do is point the tool to your code file, and boom – you get a beautifully crafted README using the Groq API. 🚀
 
 ## 📽 Demo
 
@@ -16,7 +16,7 @@ Here’s a quick demo of the tool in action:
 - 🛠 **README Generation**: Just give it some code, and it will generate a professional README for you.
 - 🗂 **Multiple Files? No Problem**: Generate READMEs for more than one file at a time!
 - 🔐 **Flexible API Key Setup**: Use either a `.env` file or pass your API key directly through the command line.
-- 📂 **Custom Output**: Save your  new README in any directory you like.
+- 📂 **Custom Output**: Save your new README in any directory you like.
 - 🧠 **Choose Your AI Model**: You can either specify a custom model from Groq or let the script use its default one.
 
 ---
@@ -62,7 +62,7 @@ You can provide your Groq API key in two ways:
 2. Add your Groq API key to the `.env` file like this:
 
 ```env
-GROQ_API_KEY=your-api-key-here
+GROQ_API_KEY=YOUR_API_KEY
 ```
 
 3. Then run the script without having to pass the key on the command line:
@@ -165,7 +165,7 @@ To test the tool, you can use the provided examples in the `examples/` directory
 
 ### Example usage:
 ```sh
-python readme_generator.py examples/sample.py --api-key your_api_key_here --model mixtral-8x7b-32768
+python readme_generator.py examples/sample.py --api-key YOUR_API_KEY --model mixtral-8x7b-32768
 ```
 ---
 
@@ -179,7 +179,7 @@ python readme_generator.py examples/sample.py --api-key your_api_key_here --mode
 
 ## 📜 License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
 
 ---
 
