@@ -164,9 +164,9 @@ python readme_generator.py example.py --api-key YOUR_API_KEY --model your_custom
 To test the tool, you can use the provided examples in the `examples/` directory.
 
 ### Example usage:
-```bash
+```sh
 python readme_generator.py examples/sample.py --api-key your_api_key_here --model mixtral-8x7b-32768
-
+```
 ---
 
 ## 🛠 Troubleshooting
