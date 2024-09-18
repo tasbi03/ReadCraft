@@ -1,7 +1,15 @@
 
-# 🎉 Welcome to the README Generator 🎉
+# 🎉 Welcome to the README Generator also known as ReadCraft🎉
 
-This handy tool automatically crafts a shiny new `README.md` file from your code! 💻✨ All you have to do is point it to a file, and boom – you get a beautifully written README using the awesome Groq API. 🚀
+This handy tool automatically crafts a  new `README.md` file from your code! 💻✨ All you have to do is point it to a file, and boom – you get a beautifully written README using the awesome Groq API. 🚀
+
+## 📽 Demo
+
+Here’s a quick demo of the tool in action:
+
+![README Generator Demo](./assets/demo_simple.gif)
+
+---
 
 ## 💡 Features
 
