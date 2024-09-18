@@ -1,7 +1,7 @@
 
 # README Generator
 
-This project is a command-line tool that generates a `README.md` file for your project by sending the code to the Groq API, which uses an AI model to automatically create a detailed README based on the source files.
+aThis project is a command-line tool that generates a `README.md` file for your project by sending the code to the Groq API, which uses an AI model to automatically create a detailed README based on the source files.
 
 ## Features
 - Command-line interface (CLI) to input source code files
