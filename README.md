@@ -1,68 +1,188 @@
 
-# README Generator
+# 🎉 Welcome to the README Generator (ReadCraft) 🎉
 
-This project is a command-line tool that generates a `README.md` file for your project by sending the code to the Groq API, which uses an AI model to automatically create a detailed README based on the source files.
+This handy tool automatically crafts a new `README.md` file from your code! 💻✨ All you have to do is point the tool to your code file, and boom – you get a beautifully crafted README using the Groq API. 🚀
 
-## Features
-- Command-line interface (CLI) to input source code files
-- Uses Groq's AI API to analyze code and generate a well-structured `README.md`
-- Supports multiple input files
-- Automatically saves generated README files to an output directory
-- Allows API key input via command line or `.env` file
+## 📽 Demo
 
-## Prerequisites
-To use this tool, you need to have the following installed:
+Here’s a quick demo of the tool in action:
 
-- Python 3.7+
-- An API key from Groq (can be added manually or via `.env` file)
+![README Generator Demo](./assets/demo_simple.gif)
 
-## Installation
+---
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/tasbi03/Release-1.git
-   cd Release-1
-   ```
+## 💡 Features
 
-2. Set up a virtual environment:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+- 🛠 **README Generation**: Just give it some code, and it will generate a professional README for you.
+- 🗂 **Multiple Files? No Problem**: Generate READMEs for more than one file at a time!
+- 🔐 **Flexible API Key Setup**: Use either a `.env` file or pass your API key directly through the command line.
+- 📂 **Custom Output**: Save your new README in any directory you like.
+- 🧠 **Choose Your AI Model**: You can either specify a custom model from Groq or let the script use its default one.
 
-3. Install the required dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
+---
 
-4. Create a `.env` file in the root of the project:
-   ```
-   GROQ_API_KEY=your_api_key_here
-   ```
+## 🛠 Prerequisites
 
-## Usage
+Make sure you have the following installed:
+- **Python 3.7+**🐍
+- `pip` (Python package manager) to install the required packages.
 
-You can use this tool by running the following command:
+---
 
-```bash
-python readme_generator.py --api-key YOUR_API_KEY file1.py file2.py ...
+## 🚀 How to Set Up
+
+### 1. Clone the Repo
+
+First things first – grab a copy of this project on your local machine:
+
+```sh
+git clone https://github.com/your-username/readme_generator.git
+cd readme_generator
 ```
 
-### Optional Arguments:
-- `--api-key`, `-a`: Passes the API key directly. If not provided, the tool will attempt to load the API key from the `.env` file.
-- `--output-dir`, `-o`: Specifies the directory where the generated README files will be saved (default is `./output`).
+### 2. Install Dependencies
 
-### Example:
+Next, install the necessary Python packages:
 
-```bash
-python readme_generator.py -a YOUR_API_KEY main.py utils.py -o ./docs
+```sh
+pip install -r requirements.txt
 ```
 
-This will generate README files for `main.py` and `utils.py` and save them in the `docs` directory.
+This will set you up with all the required libraries like `requests`, `python-dotenv`, and others.
 
+---
 
-## License
-This project is licensed under the MIT License. See the `LICENSE` file for more information.
+## 🔑 Setting Up Your API Key
 
-## Contributing
-Contributions are welcome! Please feel free to submit a Pull Request.
+You can provide your Groq API key in two ways:
+
+### Option 1: Use a `.env` File
+
+1. Create a `.env` file in the project root (or rename `sample.env` to `.env`).
+2. Add your Groq API key to the `.env` file like this:
+
+```env
+GROQ_API_KEY=YOUR_API_KEY
+```
+
+3. Then run the script without having to pass the key on the command line:
+
+```sh
+python readme_generator.py path/to/your/input/file.py
+```
+
+This will run the script with the **default AI model** specified in the code.
+
+### Option 2: Pass API Key via Command Line
+
+Don’t want to mess with `.env` files? No problem! Just pass the key like this:
+
+```sh
+python readme_generator.py path/to/your/input/file.py --api-key YOUR_API_KEY
+```
+
+This will also run the script with the default AI model.
+
+---
+
+## 🧠 Specifying a Custom AI Model
+
+If you want to use a specific AI model, simply provide it with the `--model` argument.
+
+```sh
+python readme_generator.py path/to/your/input/file.py --model your_custom_model
+```
+
+You can also combine this with your API key:
+
+```sh
+python readme_generator.py path/to/your/input/file.py --api-key YOUR_API_KEY --model your_custom_model
+```
+
+If no model is provided, the script will fall back to using the **default model** defined in the code.
+
+---
+
+## 🗂 Custom Output Directory
+
+By default, the generated `README.md` will be saved in the `./output` folder. But if you want to change that, just specify the folder like this:
+
+```sh
+python readme_generator.py path/to/your/input/file.py --output-dir ./your_output_dir --model your_model_name
+```
+
+---
+
+## 📜 Running the Script
+
+Here’s an example of running the script with the default model:
+
+```sh
+python readme_generator.py example.py
+```
+
+Or, specifying both an API key and a custom model:
+
+```sh
+python readme_generator.py example.py --api-key YOUR_API_KEY --model your_custom_model
+```
+
+---
+
+## 🔍 Finding Your Generated README
+
+🎉 Your freshly generated `README.md` file will be waiting for you in the folder you specified!
+
+- If you didn't specify an output directory, the default is `./output`.
+- If you used an output directory, check there! For example:
+
+```sh
+python readme_generator.py example.py --output-dir ./crafted_readme --model mixtral-8x7b-32768
+```
+
+Your file will be in `crafted_readme`.
+
+---
+
+## 💡 Example Commands
+
+```sh
+# Using the .env file and default model:
+python readme_generator.py example.py
+
+# Specify a custom output directory and default model:
+python readme_generator.py example.py --output-dir ./crafted_readme
+
+# Passing API key and specifying a custom model:
+python readme_generator.py example.py --api-key YOUR_API_KEY --model your_custom_model
+```
+
+---
+
+## Examples
+
+To test the tool, you can use the provided examples in the `examples/` directory.
+
+### Example usage:
+```sh
+python readme_generator.py examples/sample.py --api-key YOUR_API_KEY --model mixtral-8x7b-32768
+```
+---
+
+## 🛠 Troubleshooting
+
+- **No API key provided?** Check that your `.env` file is correct or pass the API key via command line.
+- **File not found?** Make sure the path to your input file is correct.
+- **Output directory issues?** Don’t worry – the directory will be created automatically if it doesn’t exist.
+
+---
+
+## 📜 License
+
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
+
+---
+
+## 📞 Need Help?
+
+Have questions or issues? Open an issue in the repository, and we’ll be happy to help you out!
