@@ -104,7 +104,7 @@ if __name__ == "__main__":
     parser.add_argument('--model', '-m', type=str, default='mixtral-8x7b-32768', help="Specify the AI model to use")
 
     # Optional flag to print the token usage
-    parser.add_argument('--token-usage', '-t',action='store_true', help="Get token usage")
+    parser.add_argument('--token-usage', '-t',action='store_true', help="Get token usage of the api")
 
 
     # Parse command-line arguments
