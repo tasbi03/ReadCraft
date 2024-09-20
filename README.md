@@ -129,6 +129,27 @@ python readme_generator.py example.py --api-key YOUR_API_KEY --model your_custom
 
 ---
 
+## Running with Token Usage
+
+You can also get token usage information when generating a README:
+
+```sh
+python readme_generator.py file1.py --api-key Your_API_Key_Here --output-dir ./your_output_dir --token-usage
+```
+
+- `file1.py`: The code file for which you want to generate a README.
+- `--api-key`: The API key for authentication.
+- `--output-dir`: Directory where the generated README will be saved.
+- `--token-usage`: This flag will output token usage statistics.
+
+### Example Command
+
+```sh
+python readme_generator.py file1.py --api-key xxxx4564xxxxxx --output-dir ./your_output_dir --token-usage
+```
+
+---
+
 ## 🔍 Finding Your Generated README
 
 🎉 Your freshly generated `README.md` file will be waiting for you in the folder you specified!
