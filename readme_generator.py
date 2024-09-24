@@ -4,18 +4,21 @@ import requests
 from dotenv import load_dotenv
 import os
 import sys  # Required for output control (stdout, stderr)
+import json  # For JSON output
 
 # Load environment variables from a .env file (if available)
 load_dotenv()
 
-def generate_readme(file_contents, api_key, model):
+def generate_readme(file_contents, api_key, model, stream=False):
     """
     Generates a README for the provided code file using the Groq API.
+    If stream is True, stream the results as they arrive.
 
     Args:
         file_contents (str): The content of the code file.
         api_key (str): The API key required for authorization with the Groq API.
-        model (str): The AI model to use for generating the README (default model is mixtral-8x7b-32768).
+        model (str): The AI model to use for generating the README.
+        stream (bool): Whether to stream the response in real-time.
 
     Returns:
         str: The generated README content, or None if the request fails.
@@ -39,23 +42,34 @@ def generate_readme(file_contents, api_key, model):
     }
 
     try:
-        # Make a POST request to the Groq API with a timeout of 10 seconds
-        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        # If streaming is enabled, use stream=True in the request
+        response = requests.post(url, json=payload, headers=headers, timeout=10, stream=stream)
         response.raise_for_status()  # Raise an HTTPError for bad responses (4xx and 5xx)
 
-        # Return the generated content from the API response
-        return response.json().get('choices')[0]['message']['content']
-    
+        if stream:
+            # Stream the response content line by line
+            for chunk in response.iter_lines():
+                if chunk:
+                    # Decode each chunk
+                    chunk_data = json.loads(chunk.decode('utf-8'))
+                    
+                    # Extract and print only the assistant's message content
+                    if "choices" in chunk_data:
+                        content = chunk_data["choices"][0]["message"]["content"]
+                        print(content, flush=True)  # Print the content as it streams
+            return None  # Return None since we're streaming directly to stdout
+        else:
+            # Standard response handling for non-streaming mode
+            return response.json().get('choices')[0]['message']['content']
+
     except requests.exceptions.Timeout:
-        # Handle timeout exception and log to stderr
         print("Error: The request timed out.", file=sys.stderr)
         return None
     except requests.exceptions.RequestException as e:
-        # Handle any other request-related exceptions and log to stderr
         print(f"Error: {e}", file=sys.stderr)
         return None
     
-# get the token usage for the api and output it to the console
+# get the token usage for the API and output it to the console
 def getTokenUsage(api_key, model):
     url = "https://api.groq.com/openai/v1/chat/completions"
 
@@ -104,7 +118,10 @@ if __name__ == "__main__":
     parser.add_argument('--model', '-m', type=str, default='mixtral-8x7b-32768', help="Specify the AI model to use")
 
     # Optional flag to print the token usage
-    parser.add_argument('--token-usage', '-t',action='store_true', help="Get token usage of the API")
+    parser.add_argument('--token-usage', '-t', action='store_true', help="Get token usage of the API")
+
+    # Add the --stream flag for streaming output
+    parser.add_argument('--stream', '-s', action='store_true', help='Stream responses in real-time')
 
     # Parse command-line arguments
     args = parser.parse_args()
@@ -132,7 +149,7 @@ if __name__ == "__main__":
     for file in args.files:
         file_path = Path(file)
 
-        # Validate if the file exists, otherwise log an error and skip to the next file
+        # Validate if the file exists
         if not file_path.exists():
             print(f"Error: {file_path} does not exist.", file=sys.stderr)
             continue
@@ -142,20 +159,21 @@ if __name__ == "__main__":
             content = f.read()
             print(f"Processing file: {file}", file=sys.stderr)
 
-            # Generate the README using the API
-            readme_content = generate_readme(content, api_key, args.model)
+            # Generate the README using the API with optional streaming
+            readme_content = generate_readme(content, api_key, args.model, stream=args.stream)
 
-            # If README generation is successful, write to output or print to stdout
-            if readme_content:
-                if args.output_dir:
-                    # Write the generated README to the specified output directory
-                    output_file = output_dir / f"{file_path.stem}_README.md"
-                    with open(output_file, 'w') as readme_file:
-                        readme_file.write(readme_content)
-                    print(f"README generated and saved as {output_file}", file=sys.stderr)
+            # If not streaming, handle the standard output
+            if not args.stream:
+                if readme_content:
+                    if args.output_dir:
+                        # Write the generated README to the specified output directory
+                        output_file = output_dir / f"{file_path.stem}_README.md"
+                        with open(output_file, 'w') as readme_file:
+                            readme_file.write(readme_content)
+                        print(f"README generated and saved as {output_file}", file=sys.stderr)
+                    else:
+                        # Print the generated README to stdout
+                        print(readme_content, file=sys.stdout)
                 else:
-                    # Print the generated README to stdout
-                    print(readme_content, file=sys.stdout)
-            else:
-                # Log an error if README generation failed for the current file
-                print(f"Error: Failed to generate README for {file_path}", file=sys.stderr)
+                    # Log an error if README generation failed for the current file
+                    print(f"Error: Failed to generate README for {file_path}", file=sys.stderr)
