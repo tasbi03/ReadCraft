@@ -117,6 +117,23 @@ python readme_generator.py path/to/your/input/file.py --stream
 ```
 
 ---
+## 📄 JSON Output
+
+Want to save the output as a JSON file in addition to the `README.md`? Just use the `--json` flag:
+
+```sh
+python readme_generator.py path/to/your/input/file.py --json
+
+# This will create both a README.md and a JSON file containing the generated content. You can combine this with other flags, such as specifying an output directory or streaming:
+python readme_generator.py path/to/your/input/file.py --json --output-dir ./your_output_dir
+
+#If you want to combine it with real-time streaming:
+python readme_generator.py path/to/your/input/file.py --json --stream
+
+#This will stream the output to your terminal while also saving the results to both .md and .json files.
+```
+
+---
 
 ## 📂 Customize the Output Directory
 
