@@ -4,6 +4,7 @@ import requests
 from dotenv import load_dotenv
 import os
 import sys  # Required for output control (stdout, stderr)
+import json  # For JSON output
 
 # Load environment variables from a .env file (if available)
 load_dotenv()
@@ -54,35 +55,6 @@ def generate_readme(file_contents, api_key, model):
         # Handle any other request-related exceptions and log to stderr
         print(f"Error: {e}", file=sys.stderr)
         return None
-    
-# get the token usage for the api and output it to the console
-def getTokenUsage(api_key, model):
-    url = "https://api.groq.com/openai/v1/chat/completions"
-
-    # Prepare the payload for the API request
-    payload = {
-        "model": model,  # Now using the model passed from the command line
-        "messages": [
-            {"role": "user", "content": f"Get token usage info"}
-        ],
-        "max_tokens": 1000
-    }
-
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json"
-    }
-    try:
-        # Add a timeout of 10 seconds to prevent hanging
-        response = requests.post(url, json=payload, headers=headers, timeout=10)
-        response.raise_for_status()  # Raise an error if the response code is 4xx or 5xx
-        return response.json().get('usage')
-    except requests.exceptions.Timeout:
-        print("Error: The request timed out.", file=sys.stderr)
-        return None
-    except requests.exceptions.RequestException as e:
-        print(f"Error: {e}", file=sys.stderr)
-        return None
 
 if __name__ == "__main__":
     # Initialize the argument parser for handling CLI inputs
@@ -104,7 +76,10 @@ if __name__ == "__main__":
     parser.add_argument('--model', '-m', type=str, default='mixtral-8x7b-32768', help="Specify the AI model to use")
 
     # Optional flag to print the token usage
-    parser.add_argument('--token-usage', '-t',action='store_true', help="Get token usage of the API")
+    parser.add_argument('--token-usage', '-t', action='store_true', help="Get token usage of the API")
+
+    # Add the --json flag for JSON output
+    parser.add_argument('--json', action='store_true', help='Output results in JSON format')
 
     # Parse command-line arguments
     args = parser.parse_args()
@@ -128,34 +103,108 @@ if __name__ == "__main__":
         if not output_dir.exists():
             output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Iterate over each input file specified
+    # List to store results for JSON output
+    results = []
+    all_success = True  # Track overall success for exit codes
+
+    # Iterate over each input file or directory specified
     for file in args.files:
         file_path = Path(file)
 
-        # Validate if the file exists, otherwise log an error and skip to the next file
-        if not file_path.exists():
-            print(f"Error: {file_path} does not exist.", file=sys.stderr)
-            continue
+        # Check if input is a directory
+        if file_path.is_dir():
+            # Warn if directory is empty
+            if not any(file_path.iterdir()):
+                print(f"Warning: Directory {file_path} is empty.", file=sys.stderr)
 
-        # Open and read the file contents
-        with open(file_path, 'r') as f:
-            content = f.read()
-            print(f"Processing file: {file}", file=sys.stderr)
+            # Recursively process all files in the directory
+            for subfile in file_path.rglob('*'):
+                if subfile.is_file():
+                    # Process each file as normal
+                    print(f"Processing file: {subfile}", file=sys.stderr)
+                    with open(subfile, 'r') as f:
+                        content = f.read()
+                        readme_content = generate_readme(content, api_key, args.model)
 
-            # Generate the README using the API
-            readme_content = generate_readme(content, api_key, args.model)
+                        result = {
+                            "file": str(subfile),
+                            "readme_content": readme_content,
+                            "status": "success" if readme_content else "failure"
+                        }
 
-            # If README generation is successful, write to output or print to stdout
-            if readme_content:
-                if args.output_dir:
-                    # Write the generated README to the specified output directory
-                    output_file = output_dir / f"{file_path.stem}_README.md"
-                    with open(output_file, 'w') as readme_file:
-                        readme_file.write(readme_content)
-                    print(f"README generated and saved as {output_file}", file=sys.stderr)
+                        # Save results based on flags
+                        if readme_content:
+                            if args.output_dir:
+                                output_file = output_dir / f"{subfile.stem}_README.md"
+                                json_output_file = output_dir / f"{subfile.stem}_README.json"
+                                
+                                with open(output_file, 'w') as readme_file:
+                                    readme_file.write(readme_content)
+                                
+                                if args.json:
+                                    with open(json_output_file, 'w') as json_file:
+                                        json.dump(result, json_file, indent=2)
+                                
+                                print(f"README generated and saved as {output_file}")
+                                if args.json:
+                                    print(f"JSON output saved as {json_output_file}")
+                            else:
+                                print(readme_content, file=sys.stdout)
+                        else:
+                            print(f"Error: Failed to generate README for {subfile}", file=sys.stderr)
+                            all_success = False
+
+                        # Add result to JSON list
+                        results.append(result)
+
+        # Process individual files
+        elif file_path.is_file():
+            print(f"Processing file: {file_path}", file=sys.stderr)
+
+            with open(file_path, 'r') as f:
+                content = f.read()
+                readme_content = generate_readme(content, api_key, args.model)
+
+                result = {
+                    "file": str(file_path),
+                    "readme_content": readme_content,
+                    "status": "success" if readme_content else "failure"
+                }
+
+                # Save results based on flags
+                if readme_content:
+                    if args.output_dir:
+                        output_file = output_dir / f"{file_path.stem}_README.md"
+                        json_output_file = output_dir / f"{file_path.stem}_README.json"
+                        
+                        with open(output_file, 'w') as readme_file:
+                            readme_file.write(readme_content)
+                        
+                        if args.json:
+                            with open(json_output_file, 'w') as json_file:
+                                json.dump(result, json_file, indent=2)
+                        
+                        print(f"README generated and saved as {output_file}")
+                        if args.json:
+                            print(f"JSON output saved as {json_output_file}")
+                    else:
+                        print(readme_content, file=sys.stdout)
                 else:
-                    # Print the generated README to stdout
-                    print(readme_content, file=sys.stdout)
-            else:
-                # Log an error if README generation failed for the current file
-                print(f"Error: Failed to generate README for {file_path}", file=sys.stderr)
+                    print(f"Error: Failed to generate README for {file_path}", file=sys.stderr)
+                    all_success = False
+
+                # Add result to JSON list
+                results.append(result)
+
+        else:
+            error_message = f"Error: {file_path} does not exist."
+            print(error_message, file=sys.stderr)
+            results.append({"file": str(file_path), "error": error_message})
+            all_success = False
+
+    # Print JSON output if --json is used and no output directory is provided
+    if args.json and not args.output_dir:
+        print(json.dumps(results, indent=2))
+
+    # Exit with success (0) or failure (1) based on overall results
+    sys.exit(0 if all_success else 1)
