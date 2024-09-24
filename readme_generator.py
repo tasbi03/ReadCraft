@@ -21,7 +21,7 @@ def generate_readme(file_contents, api_key, model, stream=False):
         stream (bool): Whether to stream the response in real-time.
 
     Returns:
-        str: The generated README content, or None if the request fails.
+        str: The generated README content (or accumulated content if streaming).
     """
     url = "https://api.groq.com/openai/v1/chat/completions"
     
@@ -47,6 +47,7 @@ def generate_readme(file_contents, api_key, model, stream=False):
         response.raise_for_status()  # Raise an HTTPError for bad responses (4xx and 5xx)
 
         if stream:
+            accumulated_content = []  # List to accumulate streamed content
             # Stream the response content line by line
             for chunk in response.iter_lines():
                 if chunk:
@@ -56,8 +57,10 @@ def generate_readme(file_contents, api_key, model, stream=False):
                     # Extract and print only the assistant's message content
                     if "choices" in chunk_data:
                         content = chunk_data["choices"][0]["message"]["content"]
-                        print(content, flush=True)  # Print the content as it streams
-            return None  # Return None since we're streaming directly to stdout
+                        print(content, flush=True)  # Print the content to terminal
+                        accumulated_content.append(content)  # Accumulate streamed content
+
+            return "\n".join(accumulated_content)  # Return the accumulated content
         else:
             # Standard response handling for non-streaming mode
             return response.json().get('choices')[0]['message']['content']
@@ -68,7 +71,8 @@ def generate_readme(file_contents, api_key, model, stream=False):
     except requests.exceptions.RequestException as e:
         print(f"Error: {e}", file=sys.stderr)
         return None
-    
+
+
 # get the token usage for the api and output it to the console
 def getTokenUsage(api_key, model):
     url = "https://api.groq.com/openai/v1/chat/completions"
@@ -105,8 +109,8 @@ if __name__ == "__main__":
     # Optional flag to print the tool's version
     parser.add_argument('--version', '-v', action='version', version='ReadCraft README Generator Tool 1.0')
 
-    # Required positional argument for one or more input files to process
-    parser.add_argument('files', nargs='*', help="Specify one or more input files to generate README for")
+    # Required positional argument for one or more input files or a directory to process
+    parser.add_argument('files_or_directory', nargs='+', help="Specify one or more input files or a directory to generate README for")
 
     # Optional flag for specifying the API key (falls back to .env if not provided)
     parser.add_argument('--api-key', '-a', type=str, help="Specify the API key for Groq API (optional, will use .env if not provided)")
@@ -118,14 +122,13 @@ if __name__ == "__main__":
     parser.add_argument('--model', '-m', type=str, default='mixtral-8x7b-32768', help="Specify the AI model to use")
 
     # Optional flag to print the token usage
-    parser.add_argument('--token-usage', '-t',action='store_true', help="Get token usage of the API")
+    parser.add_argument('--token-usage', '-t', action='store_true', help="Get token usage of the API")
 
-     # Add the --json flag for JSON output
+    # Add the --json flag for JSON output
     parser.add_argument('--json', action='store_true', help='Output results in JSON format')
 
     # Add the --stream flag for streaming output
     parser.add_argument('--stream', '-s', action='store_true', help='Stream responses in real-time')
-
 
     # Parse command-line arguments
     args = parser.parse_args()
@@ -153,62 +156,77 @@ if __name__ == "__main__":
     results = []
     all_success = True  # Track overall success for exit codes
 
-    # Iterate over each input file specified
-    for file in args.files:
-        file_path = Path(file)
+    # Iterate over each input (file or directory)
+    for path in args.files_or_directory:
+        path = Path(path)
 
-        # Validate if the file exists
-        if not file_path.exists():
-            print(f"Error: {file_path} does not exist.", file=sys.stderr)
-            all_success = False
-            continue
+        # If the path is a directory, process all files in it
+        if path.is_dir():
+            files = list(path.glob('*'))  # Get all files in the directory
+        else:
+            files = [path]  # If it's a file, just add it to the list
 
-        # Open and read the file contents
-        with open(file_path, 'r') as f:
-            content = f.read()
-            print(f"Processing file: {file}", file=sys.stderr)
+        # Iterate over each file
+        for file_path in files:
+            if not file_path.is_file():  # Skip if it's not a file (e.g., directory)
+                continue
 
-            # Stream or standard processing logic
-            if args.stream:
-                accumulated_content = []
-                for chunk in response.iter_lines():
-                    if chunk:
-                        chunk_data = json.loads(chunk.decode('utf-8'))
-                        if "choices" in chunk_data:
-                            content = chunk_data["choices"][0]["message"]["content"]
-                            accumulated_content.append(content)
-                            if not args.json:  # Print in real-time if not using JSON
-                                print(content, flush=True)
-                # If JSON flag is enabled, append to results for final output
-                if args.json:
-                    result = {"file": file, "readme_content": accumulated_content, "status": "success"}
-                    results.append(result)
-            else:
-                # Generate the README using the API in non-streaming mode
-                readme_content = generate_readme(content, api_key, args.model)
-                result = {
-                    "file": file,
-                    "readme_content": readme_content,
-                    "status": "success" if readme_content else "failure"
-                }
+            # Open and read the file contents
+            with open(file_path, 'r') as f:
+                content = f.read()
+                print(f"Processing file: {file_path}", file=sys.stderr)
 
-                # Output the result based on the flags
-                if readme_content:
+                # Stream or standard processing logic
+                if args.stream:
+                    # Call the function to stream the README and accumulate content
+                    streamed_content = generate_readme(content, api_key, args.model, stream=True)
+
+                    # Save the streamed content to .md and .json files if output directory is provided
                     if args.output_dir:
                         output_file = output_dir / f"{file_path.stem}_README.md"
+                        json_output_file = output_dir / f"{file_path.stem}_README.json"
+                        
+                        # Write to markdown file
                         with open(output_file, 'w') as readme_file:
-                            readme_file.write(readme_content)
+                            readme_file.write(streamed_content)
+
+                        # Save as JSON if --json flag is used
                         if args.json:
-                            json_output_file = output_dir / f"{file_path.stem}_README.json"
+                            result = {"file": str(file_path), "readme_content": streamed_content, "status": "success"}
                             with open(json_output_file, 'w') as json_file:
                                 json.dump(result, json_file, indent=2)
+
                         print(f"README generated and saved as {output_file}")
-                    else:
-                        print(readme_content, file=sys.stdout)
+                        print(f"JSON output saved as {json_output_file}")
+
                 else:
-                    print(f"Error: Failed to generate README for {file_path}", file=sys.stderr)
-                    all_success = False
-                results.append(result)
+                    # Generate the README using the API in non-streaming mode
+                    readme_content = generate_readme(content, api_key, args.model)
+                    result = {
+                        "file": str(file_path),
+                        "readme_content": readme_content,
+                        "status": "success" if readme_content else "failure"
+                    }
+
+                    # Output the result based on the flags
+                    if readme_content:
+                        if args.output_dir:
+                            output_file = output_dir / f"{file_path.stem}_README.md"
+                            json_output_file = output_dir / f"{file_path.stem}_README.json"
+                            
+                            with open(output_file, 'w') as readme_file:
+                                readme_file.write(readme_content)
+                            if args.json:
+                                with open(json_output_file, 'w') as json_file:
+                                    json.dump(result, json_file, indent=2)
+                            print(f"README generated and saved as {output_file}")
+                        else:
+                            print(readme_content, file=sys.stdout)
+                    else:
+                        print(f"Error: Failed to generate README for {file_path}", file=sys.stderr)
+                        all_success = False
+                    results.append(result)
+
 
     # Print the accumulated JSON output if --json is used and no output directory is provided
     if args.json and not args.output_dir:
