@@ -1,5 +1,0 @@
-{
-  "file": "my_files/test2.js",
-  "readme_content": "# Simple Calculator Script\n\nThis script contains a simple calculator for addition and multiplication of two numbers.\n\n## Table of Contents\n\n- [Functions](#functions)\n  - [add(a, b)](#addab)\n  - [multiply(a, b)](#multiplyab)\n- [Main Execution](#main-execution)\n\n## Functions\n\n### add(a, b)\n\nThis function takes two numbers as arguments and returns their sum.\n\n#### Example\n\n```javascript\nadd(5, 3); // Returns: 8\n```\n\n### multiply(a, b)\n\nThis function takes two numbers as arguments and returns their product.\n\n#### Example\n\n```javascript\nmultiply(5, 3); // Returns: 15\n```\n\n## Main Execution\n\nThe script calculates the sum and product of two numbers, `num1` and `num2`, and logs the results to the console.\n\n```javascript\nconst num1 = 10;\nconst num2 = 5;\n\nconsole.log(`The sum of ${num1} and ${num2} is:`, add(num1, num2));\nconsole.log(`The product of ${num1} and ${num2} is:`, multiply(num1, num2));\n```\n\n#### Output\n\n```\nThe sum of 10 and 5 is: 15\nThe product of 10 and 5 is: 50\n```",
-  "status": "success"
-}
