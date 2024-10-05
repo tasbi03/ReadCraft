@@ -164,6 +164,37 @@ python readme_generator.py ./my_files --model mixtral-8x7b-32768 --api-key your-
 ```
 
 ---
+## Configuration via TOML File
+
+This tool now supports specifying default configuration values using a TOML-formatted configuration file in the user's home directory. This allows you to avoid passing the `--api-key` and `--model` arguments every time you run the tool.
+
+### How to Set Up the Configuration File
+
+1. **Create the TOML file in your home directory**:
+   Create a file named `.your-toolname-config.toml` in your home directory (`~`).
+
+2. **Add your API key and model to the file**:
+   In this file, you can define default values for the `api_key` and `model`. For example:
+   ```toml
+   api_key = "your_api_key_here"
+   model = "your_model_here"
+   ```
+3. **Usage**:
+- If the TOML config file is present, the tool will automatically load these values when run.
+- If you provide --api-key or --model as command-line arguments, they will override the values from the TOML file.
+
+4. **File Location**:
+- The file should be placed in the home directory (~), and the filename should be .your-toolname-config.toml (a dotfile).
+
+### Example
+```toml
+# Running the tool with the configuration from the TOML file
+python readme_generator.py path_to_your_input_file_or_directory
+
+# Overriding the TOML file values with command-line arguments
+python readme_generator.py path_to_your_input_file_or_directory --api-key "override_api_key" --model "override_model"
+```
+By using this configuration file, you can avoid repeatedly entering sensitive data like API keys on the command line, while still allowing flexibility to override values as needed.
 
 ## Running with Token Usage
 
