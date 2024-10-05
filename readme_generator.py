@@ -5,9 +5,22 @@ from dotenv import load_dotenv
 import os
 import sys  # Required for output control (stdout, stderr)
 import json  # For JSON output
+import toml  # To handle TOML config files
 
 # Load environment variables from a .env file (if available)
 load_dotenv()
+
+# Function to load TOML config file from the user's home directory
+def load_toml_config():
+    config_path = Path.home() / ".your-toolname-config.toml"
+    if config_path.exists():
+        try:
+            return toml.load(config_path)
+        except toml.TomlDecodeError:
+            print(f"Error: Failed to parse TOML config file at {config_path}", file=sys.stderr)
+            sys.exit(1)
+    return {}
+
 
 def generate_readme(file_contents, api_key, model, stream=False):
     """
@@ -133,8 +146,14 @@ if __name__ == "__main__":
     # Parse command-line arguments
     args = parser.parse_args()
 
-    # Obtain the API key either from command-line or .env file
-    api_key = args.api_key or os.getenv("GROQ_API_KEY")
+    # Load the config from the TOML file
+    config = load_toml_config()
+
+    # Obtain the API key either from command-line, config file, or .env file
+    api_key = args.api_key or config.get("api_key") or os.getenv("GROQ_API_KEY")
+
+    # Use the model from command-line or config file
+    model = args.model or config.get("model", 'mixtral-8x7b-32768')
 
     # Check for token usage
     if args.token_usage:
