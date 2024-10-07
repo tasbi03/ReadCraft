@@ -56,6 +56,15 @@ To handle `.env` files, the tool uses `python-dotenv`. If it isn't installed, us
 ```sh
 pip install python-dotenv
 ```
+---
+
+### Step 3: Manual Installation of `python-dotenv`
+
+To handle `TOML` files, the tool uses `toml`. If it isn't installed, use:
+
+```sh
+pip install toml
+```
 
 ---
 
