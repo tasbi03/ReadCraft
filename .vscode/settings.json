@@ -1,0 +1,19 @@
+{
+    "python.formatting.provider": "black",
+    "editor.formatOnSave": true,
+    "python.linting.enabled": true,
+    "python.linting.flake8Enabled": true,
+    "python.linting.flake8Args": [
+        "--max-line-length=88"
+    ],
+    "python.linting.ignorePatterns": [
+        "**/New_output/**",
+        "**/venv/**",
+        "**/.venv/**",
+        "**/env/**",
+        "**/build/**",
+        "**/dist/**",
+        "**/examples/**",
+        "**/__pycache__/**"
+    ]
+}

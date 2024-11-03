@@ -12,7 +12,8 @@ import toml  # To handle TOML config files
 load_dotenv()
 
 # Setup logging configuration
-logging.basicConfig(level=logging.DEBUG, format='%(levelname)s: %(message)s')
+logging.basicConfig(level=logging.DEBUG, format="%(levelname)s: %(message)s")
+
 
 # Utility function to handle file input/output
 def handle_file_io(config_filename=".your-toolname-config.toml"):
@@ -25,73 +26,77 @@ def handle_file_io(config_filename=".your-toolname-config.toml"):
             sys.exit(1)
     return {}
 
-# Utility function to handle API requests
+
 def make_api_request(api_key, model, file_contents, stream=False):
     url = "https://api.groq.com/openai/v1/chat/completions"
-    
+
     payload = {
         "model": model,
         "messages": [
             {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": f"Generate a short and minimal README for this Python script, which prints 'Hello, World!' to the console. Avoid adding unnecessary sections like 'Authors' or 'Acknowledgments.'"
-}
+            {
+                "role": "user",
+                "content": f"Generate a short and minimal README for this Python script:\n\n{file_contents}\n\nAvoid adding unnecessary sections like 'Authors' or 'Acknowledgments'.",
+            },
         ],
-        "max_tokens": 1000
+        "max_tokens": 1000,
     }
 
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json"
-    }
+    headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
 
     try:
         if stream:
             response = requests.post(url, json=payload, headers=headers, stream=True)
             response.raise_for_status()
-            accumulated_content = []  # List to accumulate streamed content
+            accumulated_content = []
             for chunk in response.iter_lines():
                 if chunk:
-                    chunk_data = json.loads(chunk.decode('utf-8'))
+                    chunk_data = json.loads(chunk.decode("utf-8"))
                     if "choices" in chunk_data:
                         content = chunk_data["choices"][0]["message"]["content"]
-                        logging.info(content)
+                        logging.info(content)  # Print each streamed chunk
                         accumulated_content.append(content)
-            return "\n".join(accumulated_content)  # Return accumulated content
+            return (
+                "\n".join(accumulated_content),
+                {},
+            )  # Return without token usage for streams
         else:
             response = requests.post(url, json=payload, headers=headers, timeout=10)
             response.raise_for_status()
-            return response.json().get('choices')[0]['message']['content']
+            content = response.json().get("choices")[0]["message"]["content"]
+            token_usage = response.json().get("usage", {})
+            return content, token_usage
     except requests.RequestException as e:
         logging.error(f"API request failed: {e}")
-        return None
+        return None, None
+
 
 # Function to get token usage from the API
 def get_token_usage(api_key, model):
     url = "https://api.groq.com/openai/v1/chat/completions"
-    
+
     payload = {
         "model": model,
-        "messages": [
-            {"role": "user", "content": f"Get token usage info"}
-        ],
-        "max_tokens": 1000
+        "messages": [{"role": "user", "content": "Get token usage info"}],
+        "max_tokens": 1000,
     }
 
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json"
-    }
+    headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
     try:
         response = requests.post(url, json=payload, headers=headers, timeout=10)
         response.raise_for_status()
-        return response.json().get('usage')
+        return response.json().get("usage")
     except requests.RequestException as e:
         logging.error(f"API request failed: {e}")
         return None
 
-# Refactored function to generate the README
+
 def generate_readme(file_contents, api_key, model, stream=False):
-    return make_api_request(api_key, model, file_contents, stream)
+    content, token_usage = make_api_request(api_key, model, file_contents, stream)
+    if token_usage:
+        logging.info(f"Token usage: {token_usage}")
+    return content
+
 
 # Centralized configuration manager to handle API key, model, and output directory
 class ConfigManager:
@@ -103,10 +108,12 @@ class ConfigManager:
         self.output_dir = self.get_output_dir()
 
     def get_api_key(self):
-        return self.args.api_key or self.config.get("api_key") or os.getenv("GROQ_API_KEY")
+        return (
+            self.args.api_key or self.config.get("api_key") or os.getenv("GROQ_API_KEY")
+        )
 
     def get_model(self):
-        return self.args.model or self.config.get("model", 'mixtral-8x7b-32768')
+        return self.args.model or self.config.get("model", "mixtral-8x7b-32768")
 
     def get_output_dir(self):
         if self.args.output_dir:
@@ -115,6 +122,7 @@ class ConfigManager:
                 output_dir.mkdir(parents=True, exist_ok=True)
             return output_dir
         return None
+
 
 # Refactored output manager to handle saving files
 class OutputManager:
@@ -126,7 +134,7 @@ class OutputManager:
         """Save the generated README content to a Markdown file."""
         if self.output_dir:
             output_file = self.output_dir / f"{file_path.stem}_README.md"
-            with open(output_file, 'w') as readme_file:
+            with open(output_file, "w") as readme_file:
                 readme_file.write(readme_content)
             logging.info(f"README generated and saved as {output_file}")
 
@@ -134,21 +142,55 @@ class OutputManager:
         """Save the output result in JSON format, if required."""
         if self.output_dir and self.json_output:
             json_output_file = self.output_dir / f"{file_path.stem}_README.json"
-            with open(json_output_file, 'w') as json_file:
+            with open(json_output_file, "w") as json_file:
                 json.dump(result, json_file, indent=2)
             logging.info(f"JSON output saved as {json_output_file}")
 
+
 if __name__ == "__main__":
     # Initialize the argument parser for handling CLI inputs
-    parser = argparse.ArgumentParser(description="CLI tool for generating README files using the Groq API.")
-    parser.add_argument('--version', '-v', action='version', version='ReadCraft README Generator Tool 1.0')
-    parser.add_argument('files_or_directory', nargs='+', help="Specify one or more input files or a directory to generate README for")
-    parser.add_argument('--api-key', '-a', type=str, help="Specify the API key for Groq API (optional, will use .env if not provided)")
-    parser.add_argument('--output-dir', '-o', type=str, help="Specify the output directory for the generated README files")
-    parser.add_argument('--model', '-m', type=str, default='mixtral-8x7b-32768', help="Specify the AI model to use")
-    parser.add_argument('--token-usage', '-t', action='store_true', help="Get token usage of the API")
-    parser.add_argument('--json', action='store_true', help='Output results in JSON format')
-    parser.add_argument('--stream', '-s', action='store_true', help='Stream responses in real-time')
+    parser = argparse.ArgumentParser(
+        description="CLI tool for generating README files using the Groq API."
+    )
+    parser.add_argument(
+        "--version",
+        "-v",
+        action="version",
+        version="ReadCraft README Generator Tool 1.0",
+    )
+    parser.add_argument(
+        "files_or_directory",
+        nargs="+",
+        help="Specify one or more input files or a directory to generate README for",
+    )
+    parser.add_argument(
+        "--api-key",
+        "-a",
+        type=str,
+        help="Specify the API key for Groq API (optional, will use .env if not provided)",
+    )
+    parser.add_argument(
+        "--output-dir",
+        "-o",
+        type=str,
+        help="Specify the output directory for the generated README files",
+    )
+    parser.add_argument(
+        "--model",
+        "-m",
+        type=str,
+        default="mixtral-8x7b-32768",
+        help="Specify the AI model to use",
+    )
+    parser.add_argument(
+        "--token-usage", "-t", action="store_true", help="Get token usage of the API"
+    )
+    parser.add_argument(
+        "--json", action="store_true", help="Output results in JSON format"
+    )
+    parser.add_argument(
+        "--stream", "-s", action="store_true", help="Stream responses in real-time"
+    )
 
     args = parser.parse_args()
     config = handle_file_io()
@@ -172,7 +214,7 @@ if __name__ == "__main__":
     for path in args.files_or_directory:
         path = Path(path)
         if path.is_dir():
-            files = list(path.glob('*'))
+            files = list(path.glob("*"))
         else:
             files = [path]
 
@@ -180,36 +222,29 @@ if __name__ == "__main__":
             if not file_path.is_file():
                 continue
 
-            with open(file_path, 'r') as f:
+            with open(file_path, "r") as f:
                 content = f.read()
                 logging.info(f"Processing file: {file_path}")
 
-                if args.stream:
-                    # Accumulate streamed content for JSON output
-                    streamed_content = generate_readme(content, config_manager.api_key, config_manager.model, stream=True)
-                    result = {
-                        "file": str(file_path),
-                        "readme_content": streamed_content,
-                        "status": "success" if streamed_content else "failure"
-                    }
-                    output_manager.save_readme(file_path, streamed_content)
+                readme_content = generate_readme(
+                    content,
+                    config_manager.api_key,
+                    config_manager.model,
+                    stream=args.stream,
+                )
+
+                result = {
+                    "file": str(file_path),
+                    "readme_content": readme_content,
+                    "status": "success" if readme_content else "failure",
+                }
+
+                if readme_content:
+                    output_manager.save_readme(file_path, readme_content)
                     if args.json:
                         output_manager.save_json(file_path, result)
                 else:
-                    readme_content = generate_readme(content, config_manager.api_key, config_manager.model)
-                    result = {
-                        "file": str(file_path),
-                        "readme_content": readme_content,
-                        "status": "success" if readme_content else "failure"
-                    }
-
-                    if readme_content:
-                        output_manager.save_readme(file_path, readme_content)
-                        output_manager.save_json(file_path, result)
-                    else:
-                        logging.error(f"Failed to generate README for {file_path}")
-                        all_success = False
-                    results.append(result)
+                    logging.error(f"Failed to generate README for {file_path}")
 
     if args.json and not config_manager.output_dir:
         print(json.dumps(results, indent=2))
