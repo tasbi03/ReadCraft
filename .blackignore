@@ -1,0 +1,16 @@
+# Ignore virtual environments with typical names
+venv/
+env/
+.venv/
+
+# Ignore folders commonly used for generated or output files
+*/output*/
+*/New_output*/
+*/build*/
+*/dist*/
+*/examples/
+
+# Ignore common temporary files
+__pycache__/
+*.pyc
+.DS_Store
