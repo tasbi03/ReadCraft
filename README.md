@@ -1,3 +1,4 @@
+
 # 🎉 Welcome to ReadCraft - The README Generator 🎉
 
 *ReadCraft* helps you automatically create professional README.md files for your code using the Groq API. 🚀
@@ -35,26 +36,26 @@ Ensure the following are installed:
 
 Start by cloning the repository to your local machine:
 
-sh
+```sh
 git clone https://github.com/your-username/readme_generator.git
 cd readme_generator
-
+```
 
 ### Step 2: Install Dependencies
 
 Run the following command to install all the required packages:
 
-sh
+```sh
 pip install -r requirements.txt
-
+```
 
 ### Step 3: Install Additional Packages
 
 To handle .env files and TOML configuration, install:
 
-sh
+```sh
 pip install python-dotenv toml
-
+```
 
 ---
 
@@ -67,23 +68,23 @@ You can provide your Groq API key in two ways:
 1. Create a .env file in the project root (or rename sample.env to .env).
 2. Add your API key:
 
-env
+```env
 GROQ_API_KEY=YOUR_API_KEY
-
+```
 
 3. Run the script:
 
-sh
+```sh
 python readme_generator.py path/to/your/input/file.py
-
+```
 
 ### Option 2: Pass the API Key via Command Line
 
 You can also pass your API key directly:
 
-sh
+```sh
 python readme_generator.py path/to/your/input/file.py --api-key YOUR_API_KEY
-
+```
 
 ---
 
@@ -91,9 +92,9 @@ python readme_generator.py path/to/your/input/file.py --api-key YOUR_API_KEY
 
 If you'd like to use a specific AI model, provide the --model argument:
 
-sh
+```sh
 python readme_generator.py path/to/your/input/file.py --model your_custom_model
-
+```
 
 ---
 
@@ -101,9 +102,9 @@ python readme_generator.py path/to/your/input/file.py --model your_custom_model
 
 Easily generate READMEs for all files in a directory:
 
-sh
+```sh
 python readme_generator.py /path/to/your/code_directory --api-key YOUR_API_KEY
-
+```
 
 ---
 
@@ -111,18 +112,18 @@ python readme_generator.py /path/to/your/code_directory --api-key YOUR_API_KEY
 
 Want to see the README while it's being generated? Use the --stream flag:
 
-sh
+```sh
 python readme_generator.py path/to/your/input/file.py --stream
-
+```
 
 ---
 ## 📄 JSON Output
 
 Want to save the output as a JSON file in addition to the README.md? Just use the --json flag:
 
-sh
+```sh
 python readme_generator.py path/to/your/input/file.py --json
-
+```
 
 ---
 
@@ -130,9 +131,9 @@ python readme_generator.py path/to/your/input/file.py --json
 
 By default, READMEs are saved in ./output. To change the location:
 
-sh
+```sh
 python readme_generator.py path/to/your/input/file.py --output-dir ./your_output_dir
-
+```
 
 ---
 
@@ -140,7 +141,7 @@ python readme_generator.py path/to/your/input/file.py --output-dir ./your_output
 
 Examples:
 
-sh
+```sh
 # Default model and .env API key:
 python readme_generator.py example.py
 
@@ -152,7 +153,7 @@ python readme_generator.py /path/to/your/code_directory --output-dir ./crafted_r
 
 # Full example with custom model, API key, streaming, and JSON output:
 python readme_generator.py ./my_files --model mixtral-8x7b-32768 --api-key your-api-key --json --output-dir ./test_output_multiple --stream
-
+```
 
 ---
 ## Configuration via TOML File
@@ -166,18 +167,18 @@ This tool supports specifying default configuration values using a TOML-formatte
 
 2. *Add your API key and model to the file*:
    In this file, you can define default values for the api_key and model. For example:
-   toml
+   ```toml
    api_key = "your_api_key_here"
    model = "your_model_here"
-   
+   ```
 
 ### Running with Token Usage
 
 You can also track token usage with the --token-usage flag:
 
-sh
+```sh
 python readme_generator.py file1.py --api-key Your_API_Key --token-usage
-
+```
 
 ---
 
