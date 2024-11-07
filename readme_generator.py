@@ -15,6 +15,7 @@ load_dotenv()
 logging.basicConfig(level=logging.DEBUG, format="%(levelname)s: %(message)s")
 
 
+
 # Utility function to handle file input/output
 def handle_file_io(config_filename=".your-toolname-config.toml"):
     config_path = Path.home() / config_filename
@@ -27,16 +28,30 @@ def handle_file_io(config_filename=".your-toolname-config.toml"):
     return {}
 
 
-def make_api_request(api_key, model, file_contents, stream=False):
+def make_api_request(api_key, model, file_contents, file_extension, stream=False):
     url = "https://api.groq.com/openai/v1/chat/completions"
+    
+    # Determine the type of script based on the file extension
+    if file_extension == ".py":
+        file_type = "Python script"
+    elif file_extension == ".js":
+        file_type = "JavaScript script"
+    else:
+        file_type = "script"
 
+    # Updated prompt with file type and instructions
     payload = {
         "model": model,
         "messages": [
             {"role": "system", "content": "You are a helpful assistant."},
             {
                 "role": "user",
-                "content": f"Generate a short and minimal README for this Python script:\n\n{file_contents}\n\nAvoid adding unnecessary sections like 'Authors' or 'Acknowledgments'.",
+                "content": (
+                    f"Generate a README for this {file_type}:\n\n{file_contents}\n\n"
+                    "Please make the README fun and engaging! Add emojis to highlight sections and "
+                    "use **bold text** for important terms or section titles like 'Function', 'Usage', "
+                    "and 'Examples'. Avoid unnecessary sections like 'Authors' or 'Acknowledgments'."
+                ),
             },
         ],
         "max_tokens": 1000,
@@ -56,10 +71,7 @@ def make_api_request(api_key, model, file_contents, stream=False):
                         content = chunk_data["choices"][0]["message"]["content"]
                         logging.info(content)  # Print each streamed chunk
                         accumulated_content.append(content)
-            return (
-                "\n".join(accumulated_content),
-                {},
-            )  # Return without token usage for streams
+            return "\n".join(accumulated_content), {}
         else:
             response = requests.post(url, json=payload, headers=headers, timeout=10)
             response.raise_for_status()
@@ -69,6 +81,8 @@ def make_api_request(api_key, model, file_contents, stream=False):
     except requests.RequestException as e:
         logging.error(f"API request failed: {e}")
         return None, None
+
+
 
 
 # Function to get token usage from the API
@@ -91,11 +105,12 @@ def get_token_usage(api_key, model):
         return None
 
 
-def generate_readme(file_contents, api_key, model, stream=False):
-    content, token_usage = make_api_request(api_key, model, file_contents, stream)
+def generate_readme(file_contents, api_key, model, file_extension, stream=False):
+    content, token_usage = make_api_request(api_key, model, file_contents, file_extension, stream)
     if token_usage:
         logging.info(f"Token usage: {token_usage}")
     return content
+
 
 
 # Centralized configuration manager to handle API key, model, and output directory
@@ -226,10 +241,12 @@ if __name__ == "__main__":
                 content = f.read()
                 logging.info(f"Processing file: {file_path}")
 
+                # Pass the file extension to generate_readme
                 readme_content = generate_readme(
                     content,
                     config_manager.api_key,
                     config_manager.model,
+                    file_path.suffix,
                     stream=args.stream,
                 )
 
@@ -245,6 +262,7 @@ if __name__ == "__main__":
                         output_manager.save_json(file_path, result)
                 else:
                     logging.error(f"Failed to generate README for {file_path}")
+
 
     if args.json and not config_manager.output_dir:
         print(json.dumps(results, indent=2))
