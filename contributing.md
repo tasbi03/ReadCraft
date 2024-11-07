@@ -1,3 +1,4 @@
+
 # 🎉 Welcome to Contributing to ReadCraft!
 
 Thank you for considering joining the *ReadCraft* community! We’re excited to have you on board. This guide will walk you through setting up your environment and give you a quick tour of our code standards. Let's make contributing easy, efficient, and enjoyable! 🌟
@@ -15,20 +16,20 @@ You’ll need the following tools ready to go:
 ### Getting Started with the Project
 
 1. *Clone the Repository*:
-   sh
+   ```sh
    git clone https://github.com/your-username/readme_generator.git
    cd readme_generator
-   
+   ```
 
 2. *Install Dependencies*:
-   sh
+   ```sh
    pip install -r requirements.txt
-   
+   ```
 
 3. *Install Additional Packages* (for handling .env and TOML files):
-   sh
+   ```sh
    pip install python-dotenv toml
-   
+   ```
 
 And you’re all set up! 🎉
 
@@ -56,13 +57,13 @@ We’ve set up *Black* for formatting and *Flake8* for linting to help keep our 
 
 Not using VSCode? No worries! You can run Black and Flake8 directly in the terminal:
 
-sh
+```sh
 # Run Black
 black .
 
 # Run Flake8
 flake8 .
-
+```
 
 ---
 
@@ -81,16 +82,16 @@ Let’s make life even easier with a *Git pre-commit hook*! This hook runs Black
 1. *Create the Hook File*:
    In .git/hooks/pre-commit, add the following:
 
-   bash
+   ```bash
    #!/bin/bash
    black .
    flake8 .
-   
+   ```
 
 2. *Make It Executable*:
-   bash
+   ```bash
    chmod +x .git/hooks/pre-commit
-   
+   ```
 
 Now, every time you commit, this hook will check your code for formatting and linting issues, making sure your contribution meets our standards. 🎩
 
@@ -100,10 +101,10 @@ Now, every time you commit, this hook will check your code for formatting and li
 
 Prefer to have default settings for API keys or models? You can create a .your-toolname-config.toml file in your home directory to store these defaults:
 
-toml
+```toml
 api_key = "your_api_key_here"
 model = "your_model_here"
-
+```
 
 This way, you won’t need to pass API keys or model options every time you run the tool.
 
