@@ -104,13 +104,7 @@ def get_token_usage(api_key, model):
 
 
 def generate_readme(file_contents, api_key, model, file_extension, stream=False):
-    # Check if file_contents is empty and handle it accordingly
-    if not file_contents:
-        return "No content to process"
-
-    content, token_usage = make_api_request(
-        api_key, model, file_contents, file_extension, stream
-    )
+    content, token_usage = make_api_request(api_key, model, file_contents, file_extension, stream)
     if token_usage:
         logging.info(f"Token usage: {token_usage}")
     return content
