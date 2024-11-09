@@ -1,4 +1,3 @@
-import logging
 from pathlib import Path
 import argparse
 import requests
@@ -7,6 +6,7 @@ import os
 import sys  # Required for output control (stdout, stderr)
 import json  # For JSON output
 import toml  # To handle TOML config files
+import logging
 
 
 # Load environment variables from a .env file (if available)
@@ -104,7 +104,13 @@ def get_token_usage(api_key, model):
 
 
 def generate_readme(file_contents, api_key, model, file_extension, stream=False):
-    content, token_usage = make_api_request(api_key, model, file_contents, file_extension, stream)
+    # Check if file_contents is empty and handle it accordingly
+    if not file_contents:
+        return "No content to process"
+
+    content, token_usage = make_api_request(
+        api_key, model, file_contents, file_extension, stream
+    )
     if token_usage:
         logging.info(f"Token usage: {token_usage}")
     return content
