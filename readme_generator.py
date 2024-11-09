@@ -8,12 +8,12 @@ import sys  # Required for output control (stdout, stderr)
 import json  # For JSON output
 import toml  # To handle TOML config files
 
+
 # Load environment variables from a .env file (if available)
 load_dotenv()
 
 # Setup logging configuration
 logging.basicConfig(level=logging.DEBUG, format="%(levelname)s: %(message)s")
-
 
 
 # Utility function to handle file input/output
@@ -30,7 +30,7 @@ def handle_file_io(config_filename=".your-toolname-config.toml"):
 
 def make_api_request(api_key, model, file_contents, file_extension, stream=False):
     url = "https://api.groq.com/openai/v1/chat/completions"
-    
+
     # Determine the type of script based on the file extension
     if file_extension == ".py":
         file_type = "Python script"
@@ -83,8 +83,6 @@ def make_api_request(api_key, model, file_contents, file_extension, stream=False
         return None, None
 
 
-
-
 # Function to get token usage from the API
 def get_token_usage(api_key, model):
     url = "https://api.groq.com/openai/v1/chat/completions"
@@ -106,11 +104,16 @@ def get_token_usage(api_key, model):
 
 
 def generate_readme(file_contents, api_key, model, file_extension, stream=False):
-    content, token_usage = make_api_request(api_key, model, file_contents, file_extension, stream)
+    # Check if file_contents is empty and handle it accordingly
+    if not file_contents:
+        return "No content to process"
+
+    content, token_usage = make_api_request(
+        api_key, model, file_contents, file_extension, stream
+    )
     if token_usage:
         logging.info(f"Token usage: {token_usage}")
     return content
-
 
 
 # Centralized configuration manager to handle API key, model, and output directory
@@ -142,7 +145,8 @@ class ConfigManager:
 # Refactored output manager to handle saving files
 class OutputManager:
     def __init__(self, output_dir, json_output):
-        self.output_dir = output_dir
+        # Ensure output_dir is a Path object
+        self.output_dir = Path(output_dir) if output_dir else None
         self.json_output = json_output
 
     def save_readme(self, file_path, readme_content):
@@ -262,7 +266,6 @@ if __name__ == "__main__":
                         output_manager.save_json(file_path, result)
                 else:
                     logging.error(f"Failed to generate README for {file_path}")
-
 
     if args.json and not config_manager.output_dir:
         print(json.dumps(results, indent=2))

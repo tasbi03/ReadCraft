@@ -51,6 +51,10 @@ Install all required packages:
 pip install -r requirements.txt
 ```
 
+### Step 2: Install Additional Packages (for handling .env and TOML files):
+   ```sh
+   pip install python-dotenv toml
+   ```
 ---
 
 ## ⚙ Configuration
@@ -111,6 +115,15 @@ python readme_generator.py path/to/your/file.py
 4. **Stream Output and Show Token Usage**:
    ```sh
    python readme_generator.py path/to/your/file.py --stream --token-usage
+   ```
+
+5. **Run Complete Process with a Single Command**:
+   To generate the README, stream output, save it as JSON, and show token usage in one command, use:
+   ```sh
+   python readme_generator.py ./my_files --output-dir ./outputdir --stream --json --token-usage
+
+   #This way, users can perform all actions in one command without needing extra setup in the code.
+
    ```
 
 ---

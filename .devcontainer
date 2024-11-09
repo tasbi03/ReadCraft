@@ -1,0 +1,17 @@
+{
+    "name": "ReadCraft Dev Container",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "settings": {
+        "python.linting.flake8Enabled": true,
+        "editor.formatOnSave": true,
+        "python.formatting.provider": "black"
+    },
+    "extensions": [
+        "ms-python.python",
+        "ms-python.black-formatter",
+        "ms-python.flake8"
+    ],
+    "postCreateCommand": "pip install -r requirements.txt && pre-commit install"
+}

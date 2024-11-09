@@ -1,7 +1,7 @@
 
 # 🎉 Welcome to Contributing to ReadCraft!
 
-Thank you for considering joining the *ReadCraft* community! We’re excited to have you on board. This guide will walk you through setting up your environment and give you a quick tour of our code standards. Let's make contributing easy, efficient, and enjoyable! 🌟
+Thank you for considering joining the *ReadCraft* community! We’re excited to have you on board. This guide will walk you through setting up your environment and give you a quick tour of our code standards, testing practices, and troubleshooting tips. Let’s make contributing easy, efficient, and enjoyable! 🌟
 
 ---
 
@@ -9,7 +9,7 @@ Thank you for considering joining the *ReadCraft* community! We’re excited to 
 
 ### Prerequisites
 
-You’ll need the following tools ready to go:
+You’ll need:
 - *Python 3.7+* 🐍
 - *pip* (for managing packages)
 
@@ -26,42 +26,34 @@ You’ll need the following tools ready to go:
    pip install -r requirements.txt
    ```
 
-3. *Install Additional Packages* (for handling .env and TOML files):
+3. *Install Additional Packages* (for .env and TOML support):
    ```sh
    pip install python-dotenv toml
    ```
 
-And you’re all set up! 🎉
+All set! 🎉
 
 ---
 
 ## 🔧 Code Formatting and Linting
 
-We’ve set up *Black* for formatting and *Flake8* for linting to help keep our code clean and consistent. Your *VSCode* is configured to handle this automatically thanks to our .vscode settings, making setup a breeze!
+We use *Black* for formatting and *Flake8* for linting to keep code clean and consistent.
 
-### Setting Up in VSCode
+### Formatting and Linting in VSCode
 
-1. *Open the Project* in *VSCode* or *GitHub Codespaces*.
-2. *Install Recommended Extensions* (if prompted):
+1. Open the project in *VSCode* or *GitHub Codespaces*.
+2. Install recommended extensions:
    - Python
    - Black Formatter
    - Flake8 Linter
 
-3. *Auto-Format on Save*:
-   Black will format your code every time you save a file. ✨
-
-4. *Real-Time Linting*:
-   Flake8 highlights issues as you code, keeping errors and warnings under control.
+3. Black auto-formats on save, and Flake8 catches issues in real-time. ✨
 
 ### Manual Formatting and Linting
 
-Not using VSCode? No worries! You can run Black and Flake8 directly in the terminal:
-
+Run Black and Flake8 manually if needed:
 ```sh
-# Run Black
 black .
-
-# Run Flake8
 flake8 .
 ```
 
@@ -69,19 +61,45 @@ flake8 .
 
 ## 🧪 Running Tests
 
-Always double-check that your code works! (If applicable, add testing instructions here to ensure every contributor can run tests smoothly.)
+Testing is essential for a reliable project! We use `pytest` and `unittest.mock` for mocking API responses.
+
+### Running All Tests
+
+To run all tests, use:
+```sh
+pytest
+```
+
+### Running a Specific Test or Test File
+
+- **Single Test File**:
+  ```sh
+  pytest tests/test_generate_readme.py
+  ```
+- **Single Test Function**:
+  ```sh
+  pytest tests/test_generate_readme.py::test_generate_readme_success
+  ```
+
+### Troubleshooting Test Runs
+
+Sometimes, `pytest` might not recognize imports. If you see `ModuleNotFoundError`, try running:
+```bash
+PYTHONPATH=. pytest
+```
+
+For more details, check out our [TROUBLESHOOTING.md](TROUBLESHOOTING.md) file!
 
 ---
 
 ## 🛠 Git Pre-Commit Hook: Automate Formatting & Linting
 
-Let’s make life even easier with a *Git pre-commit hook*! This hook runs Black and Flake8 automatically on any files being committed. It’s like having a safety net that catches formatting issues before they hit the repo.
+Add a pre-commit hook to run Black and Flake8 automatically on files being committed.
 
 ### Setting Up the Pre-Commit Hook
 
 1. *Create the Hook File*:
-   In .git/hooks/pre-commit, add the following:
-
+   In `.git/hooks/pre-commit`, add:
    ```bash
    #!/bin/bash
    black .
@@ -93,20 +111,38 @@ Let’s make life even easier with a *Git pre-commit hook*! This hook runs Black
    chmod +x .git/hooks/pre-commit
    ```
 
-Now, every time you commit, this hook will check your code for formatting and linting issues, making sure your contribution meets our standards. 🎩
-
 ---
 
-## ⚙ Configuration via TOML File
+## 📈 Code Coverage Analysis
 
-Prefer to have default settings for API keys or models? You can create a .your-toolname-config.toml file in your home directory to store these defaults:
+To ensure comprehensive testing, we use code coverage analysis to check which parts of the codebase are tested. This helps identify any untested paths.
 
-```toml
-api_key = "your_api_key_here"
-model = "your_model_here"
-```
+### Running Code Coverage
 
-This way, you won’t need to pass API keys or model options every time you run the tool.
+1. **Install Coverage** (if not already installed):
+   ```bash
+   pip install coverage
+   ```
+
+2. **Run Coverage with Tests**:
+   ```bash
+   coverage run -m pytest
+   ```
+
+3. **View Coverage Report**:
+   - **Terminal Report**: Display coverage results directly in the terminal.
+     ```bash
+     coverage report
+     ```
+   - **HTML Report**: Generate a detailed HTML report to explore coverage visually.
+     ```bash
+     coverage html
+     ```
+   Open `htmlcov/index.html` in your browser to see coverage details.
+
+4. **Improving Coverage**:
+   - Review uncovered lines in the report.
+   - Add missing tests to cover edge cases or error handling paths.
 
 ---
 
