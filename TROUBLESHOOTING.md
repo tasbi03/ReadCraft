@@ -130,4 +130,4 @@ Ensure mocks are correctly defined, especially for API calls. Any external API k
 
 ---
 
-We hope this guide helps resolve any issues! If you're still stuck, feel free to reach out in the project’s channels for assistance.
+We hope this guide helps resolve any issues! If you're still stuck, feel free to reach out by creating an issue, for more assistance.
