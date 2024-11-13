@@ -1,6 +1,6 @@
 from pathlib import Path
 from unittest.mock import patch, MagicMock
-from readme_generator import generate_readme, OutputManager, ConfigManager
+from readme_generator import generate_readme, OutputManager
 import logging
 import requests
 import tempfile
@@ -386,6 +386,7 @@ def test_generate_readme_network_error(mock_post):
         result is None
     )  # Ensure the function returns None when there is a connection error
 
+
 def test_output_manager_save_readme():
     with tempfile.TemporaryDirectory() as temp_dir:
         output_manager = OutputManager(temp_dir, json_output=False)
@@ -396,3 +397,7 @@ def test_output_manager_save_readme():
         assert readme_path.exists()
         with open(readme_path, "r") as f:
             assert f.read() == readme_content
+
+
+def test_intentional_failure():
+    assert 1 == 2  # This will fail
