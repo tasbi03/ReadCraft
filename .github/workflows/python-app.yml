@@ -43,6 +43,9 @@ jobs:
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
       # Step 5: Run tests with pytest
+      # Step 5: Run tests with pytest
       - name: Test with pytest
+        env:
+          PYTHONPATH: ${{ github.workspace }}  # Add the root directory to PYTHONPATH
         run: |
-          pytest tests/  # Adjust this path if your tests are in a specific folder
+          pytest tests/ 
