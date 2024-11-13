@@ -1,4 +1,5 @@
-# This workflow will install Python dependencies, run tests and lint with multiple versions of Python
+# This workflow will install Python dependencies, run tests and lint with a single version of Python
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
 
 name: Python application
 
@@ -13,36 +14,37 @@ permissions:
 
 jobs:
   build:
+
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10"]  # Specify multiple Python versions here
 
     steps:
       # Step 1: Check out the code from the repository
       - name: Check out the code
         uses: actions/checkout@v4
 
-      # Step 2: Set up Python environment for each version in the matrix
-      - name: Set up Python ${{ matrix.python-version }}
+      # Step 2: Set up Python environment
+      - name: Set up Python 3.10
         uses: actions/setup-python@v3
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.10"  # You can adjust this version if your project needs a different version
 
       # Step 3: Install dependencies
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install flake8 pytest  # Installs flake8 for linting and pytest for testing
+          pip install torch==2.4.1+cpu -f https://download.pytorch.org/whl/torch_stable.html
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       # Step 4: Run linting with flake8
       - name: Lint with flake8
         run: |
+          # Stop the build if there are Python syntax errors or undefined names
           flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
       # Step 5: Run tests with pytest
       - name: Test with pytest
         run: |
-          pytest tests/  
+          pytest tests/  # Adjust this path if your tests are in a specific folder
