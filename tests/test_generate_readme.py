@@ -5,6 +5,7 @@ import logging
 import requests
 import tempfile
 import os
+import json
 
 # Mock parameters for the generate_readme function
 file_contents = "print('Hello, World!')"  # Example content
@@ -411,3 +412,28 @@ def test_output_manager_with_invalid_path():
             output_manager.save_readme(temp_path, "Test content")
         except OSError:
             assert True  # Expect an OSError for an invalid path
+
+
+def test_output_manager_save_readme():
+    with tempfile.TemporaryDirectory() as temp_dir:
+        output_manager = OutputManager(temp_dir, json_output=False)
+        file_path = Path(temp_dir) / "sample_file.py"
+        readme_content = "Sample README content"
+        output_manager.save_readme(file_path, readme_content)
+        readme_path = Path(temp_dir) / "sample_file_README.md"
+        assert readme_path.exists()
+        with open(readme_path, "r") as f:
+            assert f.read() == readme_content
+
+
+def test_output_manager_save_json():
+    with tempfile.TemporaryDirectory() as temp_dir:
+        output_manager = OutputManager(temp_dir, json_output=True)
+        file_path = Path(temp_dir) / "sample_file.py"
+        result = {"content": "Sample JSON content"}
+        output_manager.save_json(file_path, result)
+        json_path = Path(temp_dir) / "sample_file_README.json"
+        assert json_path.exists()
+        with open(json_path, "r") as f:
+            assert json.load(f) == result
+
