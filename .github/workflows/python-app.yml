@@ -1,18 +1,20 @@
-# This workflow will install Python dependencies, run tests, and lint with Python 3.10
+# This workflow installs Python dependencies, runs tests, linting, and releases to PyPI on tagged commits.
 
 name: Python application
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main" ]  # Run tests on main branch
+    tags:
+      - "v*"  # Trigger release to PyPI when a tag starting with "v" is pushed
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main" ]  # Run tests for pull requests to main branch
 
 permissions:
   contents: read
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
 
     steps:
@@ -24,16 +26,14 @@ jobs:
       - name: Set up Python 3.10
         uses: actions/setup-python@v3
         with:
-          python-version: "3.10"  # Adjust this version if necessary
+          python-version: "3.10"
 
       # Step 3: Upgrade pip and Install Dependencies
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install flake8 pytest  # Install flake8 for linting and pytest for testing
-          # Install torch from the official PyTorch repository with extra-index-url
+          pip install flake8 pytest
           pip install torch==2.4.1+cpu --extra-index-url https://download.pytorch.org/whl/cpu
-          # Install other dependencies from requirements.txt
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       # Step 4: Run linting with flake8
@@ -43,9 +43,41 @@ jobs:
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
       # Step 5: Run tests with pytest
-      # Step 5: Run tests with pytest
       - name: Test with pytest
         env:
-          PYTHONPATH: ${{ github.workspace }}  # Add the root directory to PYTHONPATH
+          PYTHONPATH: ${{ github.workspace }}
         run: |
-          pytest tests/ 
+          pytest tests/
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')  # Only run this job if a tag starting with "v" is pushed
+    needs: build-and-test
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Check out the code from the repository
+      - name: Check out the code
+        uses: actions/checkout@v4
+
+      # Step 2: Set up Python environment
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.10"
+
+      # Step 3: Upgrade pip and Install Build Tools
+      - name: Install build tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install build twine
+
+      # Step 4: Build the package
+      - name: Build the package
+        run: python -m build
+
+      # Step 5: Publish to PyPI
+      - name: Publish to PyPI
+        env:
+          TWINE_USERNAME: "__token__"
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        run: twine upload dist/*
