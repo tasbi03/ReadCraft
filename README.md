@@ -1,7 +1,7 @@
 
 # 🎉 Welcome to ReadCraft - The README Generator 🎉
 
-**ReadCraft** automates the process of creating professional README.md files based on your code using the Groq API. This tool is perfect for saving time and ensuring consistent, engaging documentation for your projects!
+**ReadCraft** automates the process of creating professional `README.md` files based on your code using the Groq API. This tool is perfect for saving time and ensuring consistent, engaging documentation for your projects!
 
 ![README Generator Demo](./assets/demo_simple.gif)
 
@@ -36,37 +36,29 @@ ReadCraft takes in your code and generates a well-structured, user-friendly READ
 - **Python 3.7+** 🐍
 - **pip** for package management
 
-### Step 1: Clone the Repository
-Clone the repository to your local machine and navigate to the directory:
-
-```sh
-git clone https://github.com/your-username/readcraft.git
-cd readcraft
+### Installing via PyPI
+Install ReadCraft directly from [PyPI](https://pypi.org/project/readcraft/):
+```bash
+pip install readcraft
 ```
 
-### Step 2: Install Dependencies
-Install all required packages:
-
-```sh
-pip install -r requirements.txt
-```
-
-### Step 2: Install Additional Packages (for handling .env and TOML files):
-   ```sh
-   pip install python-dotenv toml
-   ```
 ---
 
 ## ⚙ Configuration
 
-ReadCraft can retrieve configuration details from various sources:
+ReadCraft retrieves configuration details from various sources:
 
 1. **Environment Variables**: Create a `.env` file and add your API key:
    ```plaintext
    GROQ_API_KEY=YOUR_API_KEY
    ```
 
-2. **TOML Config File**: Store configuration in a TOML file named `.your-toolname-config.toml` in your home directory:
+2. **Command Line Flag**: Use the `--api-key` flag to provide the API key when running the tool:
+   ```bash
+   readcraft file.py --api-key YOUR_API_KEY
+   ```
+
+3. **TOML Config File**: Store configuration in a TOML file named `.your-toolname-config.toml` in your home directory:
    ```toml
    api_key = "your_api_key_here"
    model = "your_model_here"
@@ -76,55 +68,38 @@ ReadCraft can retrieve configuration details from various sources:
 
 ## 📈 Usage
 
-Generate a README with a single command! Here are some examples of how to use ReadCraft:
+After installing `readcraft`, follow these steps to generate a `README.md` for your files.
 
-### Basic Usage
-Generate a README for a Python file using your default API key and model:
-```sh
-python readme_generator.py path/to/your/file.py
-```
+1. **Locate the ReadCraft Installation**:
+   - Run:
+     ```bash
+     pip show readcraft
+     ```
+   - Find the `Location` field in the output, which points to where ReadCraft is installed.
 
-### CLI Options and Flags
+2. **Add the File(s)**:
+   - Place the file(s) you want to generate a README for into an accessible directory or just write:
+      ```bash
+      cd ~
+      touch file_name.py
+      nano file_name.py   #In here you can copy the content of the file you want readme for and to save just press ctrl+O and exit by ctrl+X!
+      readcraft file_name.py --output-dir ./outputdir  --api-key Your-API-Key --json --stream
+      ```
 
-| Flag | Description | Example |
-|------|-------------|---------|
-| `--api-key` | Specify the API key (overrides `.env` and TOML settings). | `--api-key YOUR_API_KEY` |
-| `--output-dir` | Define an output directory for generated files. | `--output-dir ./output` |
-| `--model` | Choose a specific model (default is `mixtral-8x7b-32768`). | `--model custom_model` |
-| `--json` | Save output as JSON. | `--json` |
-| `--stream` | Stream output as it's generated. | `--stream` |
-| `--token-usage` | Display token usage information. | `--token-usage` |
+   - Alternatively, provide the full path to the file when running the command.
 
-### Usage Examples
+3. **Run the Tool**:
+   - Process a single file:
+     ```bash
+     readcraft /path/to/your/file.py --output-dir ./output
+     ```
+   - Process an entire directory:
+     ```bash
+     readcraft /path/to/your/directory --output-dir ./output
+     ```
 
-1. **Generate README with Custom Output Directory**:
-   ```sh
-   python readme_generator.py path/to/your/file.py --output-dir ./output_readme
-   ```
-
-2. **Generate README and Output as JSON**:
-   ```sh
-   python readme_generator.py path/to/your/file.py --json
-   ```
-
-3. **Process an Entire Directory**:
-   ```sh
-   python readme_generator.py /path/to/your/directory --output-dir ./output_dir
-   ```
-
-4. **Stream Output and Show Token Usage**:
-   ```sh
-   python readme_generator.py path/to/your/file.py --stream --token-usage
-   ```
-
-5. **Run Complete Process with a Single Command**:
-   To generate the README, stream output, save it as JSON, and show token usage in one command, use:
-   ```sh
-   python readme_generator.py ./my_files --output-dir ./outputdir --stream --json --token-usage
-
-   #This way, users can perform all actions in one command without needing extra setup in the code.
-
-   ```
+4. **Verify the Output**:
+   - The generated `README.md` will appear in the specified output directory.
 
 ---
 
@@ -161,9 +136,9 @@ If you use the `--json` flag, an output JSON file is also created:
 We welcome contributions! Follow these steps to set up your environment:
 
 1. **Fork the repository** and clone it.
-2. **Install dependencies** listed in `requirements.txt` and dev dependencies like `Black` and `Flake8`.
+2. **Install dependencies** listed in `requirements.txt`.
 3. **Run Pre-Commit Hooks**: Set up pre-commit hooks to automatically format and lint your code:
-   ```sh
+   ```bash
    chmod +x .git/hooks/pre-commit
    ```
 
@@ -174,9 +149,13 @@ For more details, see [CONTRIBUTING.md](contributing.md).
 ## 🛠 Troubleshooting
 
 **Common Issues**:
-- **No API Key**: Ensure your API key is set in `.env` or passed with `--api-key`.
-- **Timeouts**: Increase timeout in the code if API calls frequently time out.
-- **Configuration Conflicts**: Double-check that `.env` and `.your-toolname-config.toml` settings don’t contradict each other.
+
+- **No API Key Provided**: Ensure your API key is set in a `.env` file (`GROQ_API_KEY=your_api_key`) or passed via `--api-key`.
+- **Installation Errors**: Use Python 3.7+ and ensure `pip` is up to date. If issues persist, use a virtual environment.
+- **Timeouts or Connection Errors**: Check your internet connection or retry after a short delay.
+- **Missing Output**: Verify the input file path and ensure the `--output-dir` directory exists.
+- **Configuration Conflicts**: Command-line arguments override `.env` and TOML settings. Use one method consistently.
+- **Outdated Dependencies**: Upgrade critical packages (e.g., `requests`) if you encounter compatibility issues with Python 3.12+.
 
 ---
 
@@ -185,5 +164,3 @@ For more details, see [CONTRIBUTING.md](contributing.md).
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
-
-

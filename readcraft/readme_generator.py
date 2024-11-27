@@ -10,7 +10,7 @@ import logging
 
 
 # Load environment variables from a .env file (if available)
-load_dotenv()
+load_dotenv(dotenv_path=".env")
 
 # Setup logging configuration
 logging.basicConfig(level=logging.DEBUG, format="%(levelname)s: %(message)s")
@@ -166,7 +166,7 @@ class OutputManager:
             logging.info(f"JSON output saved as {json_output_file}")
 
 
-if __name__ == "__main__":
+def main():
     # Initialize the argument parser for handling CLI inputs
     parser = argparse.ArgumentParser(
         description="CLI tool for generating README files using the Groq API."
@@ -271,3 +271,8 @@ if __name__ == "__main__":
         print(json.dumps(results, indent=2))
 
     sys.exit(0 if all_success else 1)
+
+
+# Ensures the script runs properly when executed as a command-line tool
+if __name__ == "__main__":
+    main()

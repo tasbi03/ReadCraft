@@ -20,7 +20,12 @@ You’ll need:
    git clone https://github.com/your-username/readme_generator.git
    cd readme_generator
    ```
-
+2. *Set Up a Virtual Environment (recommended):
+   ```sh
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+   
 2. *Install Dependencies*:
    ```sh
    pip install -r requirements.txt
