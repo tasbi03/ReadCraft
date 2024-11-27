@@ -1,6 +1,6 @@
 from pathlib import Path
 from unittest.mock import patch, MagicMock
-from readme_generator import generate_readme, OutputManager
+from readcraft.readme_generator import generate_readme, OutputManager
 import logging
 import requests
 import tempfile
@@ -63,7 +63,7 @@ def test_generate_readme_with_valid_api_key():
     api_key = "mock_api_key"
 
     # Mock the response from make_api_request to avoid real API calls
-    with patch("readme_generator.make_api_request") as mock_request:
+    with patch("readcraft.readme_generator.make_api_request") as mock_request:
         mock_request.return_value = ("Mocked README content", {})
 
         # Call the function
@@ -133,7 +133,7 @@ def test_generate_readme_with_unsupported_extension(mock_post):
     assert result == "Generated README for script"
 
 
-@patch("readme_generator.requests.post")
+@patch("readcraft.readme_generator.requests.post")
 def test_generate_readme_timeout_handling(mock_post):
     # Configure the mock to raise a Timeout error
     mock_post.side_effect = requests.exceptions.Timeout
@@ -206,7 +206,7 @@ def test_generate_readme_with_invalid_model(mock_post):
     assert result is None  # Expected behavior for invalid model handling
 
 
-@patch("readme_generator.requests.post")
+@patch("readcraft.readme_generator.requests.post")
 def test_token_usage_logging(mock_post, caplog):
     # Set up the mock response to include token usage
     mock_post.return_value.json = lambda: {
@@ -325,7 +325,7 @@ def test_generate_readme_with_output_manager(mock_post):
 
 
 # Test for basic functionality with mocked successful response
-@patch("readme_generator.make_api_request")
+@patch("readcraft.readme_generator.make_api_request")
 def test_generate_readme_success(mock_make_api_request):
     mock_make_api_request.return_value = ("Mocked README content", {})
 
@@ -352,7 +352,7 @@ def test_generate_readme_empty_content():
 
 
 # Test for error handling when make_api_request returns None
-@patch("readme_generator.make_api_request")
+@patch("readcraft.readme_generator.make_api_request")
 def test_generate_readme_error_handling(mock_make_api_request):
     mock_make_api_request.return_value = (None, None)
 
